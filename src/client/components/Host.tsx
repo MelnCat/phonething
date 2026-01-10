@@ -9,8 +9,8 @@ export const Host = () => {
 	const connection = useRef<Socket | null>(null);
 	const [received, setReceived] = useState<Record<string, [number, number]>>({});
 	const receivedRef = useRef<Record<string, [number, number]>>({});
-	const [clicking, setClicking] = useState<Record<string, boolean>>({});
-	const clickingRef = useRef<Record<string, boolean>>({});
+	const [clicking, setClicking] = useState<Record<string, string | boolean>>({});
+	const clickingRef = useRef<Record<string, string | boolean>>({});
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const lastDrawRef = useRef(0);
@@ -23,12 +23,15 @@ export const Host = () => {
 			const fromPos = from[id];
 			if (clickingRef.current[id]) {
 				ctx.beginPath();
-				ctx.strokeStyle = `#${Math.floor(seedRandom(id) * 0x1000000)
-					.toString(16)
-					.padStart(6, "0")}aa`;
+				ctx.strokeStyle =
+					clickingRef.current[id] === "left"
+						? `#${Math.floor(seedRandom(id) * 0x1000000)
+								.toString(16)
+								.padStart(6, "0")}aa`
+						: "#ffffff";
+				ctx.lineWidth = clickingRef.current[id] === "left" ? 8 : 60;
 				ctx.moveTo(fromPos[0] * canvas.width, fromPos[1] * canvas.height);
 				ctx.lineTo(toPos[0] * canvas.width, toPos[1] * canvas.height);
-				ctx.lineWidth = 8;
 				ctx.stroke();
 				ctx.closePath();
 			}
@@ -46,17 +49,15 @@ export const Host = () => {
 		connection.current = socket;
 		connection.current.on("data", data => {
 			setReceived(data);
-			if (lastDrawRef.current + 50 < Date.now()) {
+			if (lastDrawRef.current + 20 < Date.now()) {
 				dataChange(receivedRef.current, data);
 				receivedRef.current = data;
 				lastDrawRef.current = Date.now();
 			}
 		});
 		connection.current.on("click", (id, type, toggled) => {
-			if (type === "left") {
-				setClicking(x => ({ ...x, [id]: toggled }));
-				clickingRef.current[id] = toggled;
-			}
+			setClicking(x => ({ ...x, [id]: toggled ? type : false }));
+			clickingRef.current[id] = toggled ? type : false;
 		});
 	}, []);
 	return (
@@ -74,7 +75,7 @@ export const Host = () => {
 					}}
 				></div>
 			))}
-			<canvas className={styles.canvas} ref={canvasRef}></canvas>
+			<canvas width={1920} height={1080} className={styles.canvas} ref={canvasRef}></canvas>
 		</div>
 	);
 };
