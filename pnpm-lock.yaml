@@ -17,6 +17,9 @@ importers:
       keysender:
         specifier: ^2.4.0
         version: 2.4.0
+      rand-seed:
+        specifier: ^3.0.0
+        version: 3.0.0
       react:
         specifier: ^19.1.0
         version: 19.2.3
@@ -1116,6 +1119,9 @@ packages:
   qs@6.14.1:
     resolution: {integrity: sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==}
     engines: {node: '>=0.6'}
+
+  rand-seed@3.0.0:
+    resolution: {integrity: sha512-Zy8wnL6whyIAGOX2i9Mn1Orq3t9TNizGUk8euxamr60Z3PmspwFeT+vCZPcYMAR5nOztnAKPtVi3jt8EzmCB6g==}
 
   range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
@@ -2313,6 +2319,8 @@ snapshots:
   qs@6.14.1:
     dependencies:
       side-channel: 1.1.0
+
+  rand-seed@3.0.0: {}
 
   range-parser@1.2.1: {}
 

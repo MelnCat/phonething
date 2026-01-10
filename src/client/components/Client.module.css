@@ -1,0 +1,14 @@
+.mouse {
+	width: 100%;
+	flex-grow: 1;
+	display: flex;
+	button {
+		flex-grow: 1;
+	}
+}
+.app {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	align-items: flex-start;
+}
