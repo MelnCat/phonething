@@ -4,7 +4,7 @@ import io, { Socket } from "socket.io-client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const dist = (a: number, b: number) => Math.abs(a - b)
+const dist = (a: number, b: number) => Math.abs(a - b);
 
 function App() {
 	// a: 0-360, b: -180-180, g: -90-90
@@ -13,14 +13,14 @@ function App() {
 	const [gamma, setGamma] = useState(0);
 	const connection = useRef<Socket | null>(null);
 
-	const [topLeft, setTopLeft] = useState<null | [number, number, number]>(null);
-	const [bottomRight, setBottomRight] = useState<null | [number, number, number]>(null);
+	const [topLeft, setTopLeft] = useState<[number, number, number]>([0, 0, 0]);
+	const [bottomRight, setBottomRight] = useState<[number, number, number]>([0, 0, 0]);
 	const [shouldSend, setShouldSend] = useState(false);
 	const [received, setReceived] = useState([0, 0]);
 
-	useEventListener("deviceorientation", event => {]
+	useEventListener("deviceorientation", event => {
 		if (!event.alpha || !event.beta || !event.gamma) return;
-        setAlpha(event.alpha);
+		setAlpha(event.alpha);
 		setBeta(event.beta);
 		setGamma(event.gamma);
 	});
@@ -40,19 +40,41 @@ function App() {
 			setReceived(data);
 		});
 	}, []);
-
+	const [toAlpha, toBeta] = topLeft;
+	const [fromAlpha, fromBeta] = bottomRight;
+	const totalAlpha = fromAlpha < toAlpha ? toAlpha - fromAlpha : toAlpha - fromAlpha + 360;
+	const totalBeta = fromBeta < toBeta ? toBeta - fromBeta : toBeta - fromBeta + 360;
+	const offsetAlpha = useMemo(() => {
+		if (fromAlpha < toAlpha || alpha > fromAlpha) {
+			return alpha - fromAlpha;
+		} else {
+			return alpha - (fromAlpha - 360);
+		}
+	}, [alpha, beta, topLeft, bottomRight]);
+	const offsetBeta = useMemo(() => {
+		if (fromBeta < toBeta || beta > fromBeta) {
+			return beta - fromBeta;
+		} else {
+			return beta - (fromBeta - 360);
+		}
+	}, [alpha, beta, topLeft, bottomRight]);
 	const percentage = useMemo(() => {
-		if (!topLeft || !bottomRight) return [0, 0] as const;
-		const [minAlpha, maxBeta] = topLeft;
-		const [maxAlpha, minBeta] = bottomRight;
-
-		const alphaPercent = (alpha - minAlpha) / (maxAlpha - minAlpha);
-
-		const betaPercent = (beta - minBeta) / (maxBeta - minBeta);
+		const x = offsetAlpha / totalAlpha;
+		const y = offsetBeta / totalBeta;
 
 		const clamp = (num: number) => Math.min(Math.max(num, 0), 1);
-		return [clamp(alphaPercent), clamp(betaPercent)] as const;
+
+		return [clamp(1 - x), clamp(1 - y)];
 	}, [alpha, beta, topLeft, bottomRight]);
+
+	const center = () => {
+		const alphaDiff = offsetAlpha - totalAlpha / 2;
+		const betaDiff = offsetBeta - totalBeta / 2;
+		const [toAlpha, toBeta, g1] = topLeft;
+		const [fromAlpha, fromBeta, g2] = bottomRight;
+		setTopLeft([toAlpha + alphaDiff, toBeta + betaDiff, g1]);
+		setBottomRight([fromAlpha + alphaDiff, fromBeta + betaDiff, g2]);
+	};
 
 	useEffect(() => {
 		if (!connection.current) return;
@@ -67,10 +89,9 @@ function App() {
 		if (!connection.current) return;
 		connection.current.emit("scroll", direction, toggled);
 	};
-	const center = () => {};
 	return (
 		<div className={styles.app}>
-			<div className={styles.over} style={{ left: `${received[0] * 100}%`, top: `${(1 - received[1]) * 100}%` }}></div>
+			<div className={styles.over} style={{ left: `${received[0] * 100}%`, top: `${received[1] * 100}%` }}></div>
 			<div
 				style={{
 					backgroundImage: `linear-gradient(90deg, red 0% ${(alpha / 360) * 100}%, transparent ${(alpha / 360) * 100}% 100%)`,

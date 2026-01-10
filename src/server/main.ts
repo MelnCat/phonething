@@ -37,7 +37,7 @@ io.on("connection", socket => {
 	console.log("a user connected");
 	socket.on("data", data => {
 		io.emit("data", data);
-		lastMouse.push([screenSize.width * data[0], screenSize.height * (1 - data[1])]);
+		lastMouse.push([screenSize.width * data[0], screenSize.height * data[1]]);
         if (lastMouse.length > 10) lastMouse.shift();
 	});
 	socket.on("click", (type, toggled) => {
