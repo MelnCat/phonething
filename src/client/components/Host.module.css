@@ -26,16 +26,16 @@
     justify-content: center;
 }
 .stickContainer {
-    height: 5em;
-    width: 5em;
+    height: 6em;
+    width: 6em;
     display: flex;
     align-items: center;
     justify-content: center;
     perspective: 60px;
 }
 .stick {
-    height: 5em;
-    width: 1em;
+    height: 8em;
+    width: 2em;
 }
 .outlineBox {
     border: 3px dashed;
