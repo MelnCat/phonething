@@ -37,3 +37,7 @@
     height: 5em;
     width: 1em;
 }
+.outlineBox {
+    border: 3px dashed;
+    position: fixed;
+}

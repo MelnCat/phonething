@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { useEventListener, useTimeout } from "usehooks-ts";
 import { seedRandom } from "../util/random";
 import styles from "./Client.module.css";
+import { throttle } from "../util/slow";
 
 export const Client = () => {
 	const [ios, setIos] = useState<boolean | null>(null);
@@ -84,11 +85,17 @@ export const Client = () => {
 		setTopLeft([toAlpha + alphaDiff, toBeta + betaDiff, g1]);
 		setBottomRight([fromAlpha + alphaDiff, fromBeta + betaDiff, g2]);
 	};
+	const uploadData = useRef(
+		throttle((data: unknown) => {
+			connection.current?.emit("data", data);
+		}, 20)
+	);
 
 	useEffect(() => {
 		if (!connection.current) return;
 		if (!topLeft || !bottomRight || !straight) return;
-		connection.current.emit("data", { pos: percentage, raw: [alpha - straight[0], beta - straight[1], gamma - straight[2]] });
+
+		uploadData.current({ pos: percentage, raw: [alpha - straight[0], beta - straight[1], gamma - straight[2]] });
 	}, [percentage, topLeft, bottomRight, alpha, beta, gamma]);
 	const click = (direction: "left" | "right" | "middle", toggled: boolean) => {
 		if (!connection.current) return;
@@ -160,7 +167,7 @@ export const Client = () => {
 				</>
 			) : (
 				<div className={styles.setup}>
-					<button onClick={clickForwards} style={topLeft ? { backgroundColor: `#55ff55` } : {}}>
+					<button onClick={clickForwards} style={straight ? { backgroundColor: `#55ff55` } : {}}>
 						Forwards
 					</button>
 					<button onClick={clickTopLeft} style={topLeft ? { backgroundColor: `#55ff55` } : {}}>
