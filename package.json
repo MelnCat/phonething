@@ -12,6 +12,7 @@
 		"cross-env": "^7.0.3",
 		"express": "^5.1.0",
 		"keysender": "^2.4.0",
+		"matter-js": "^0.20.0",
 		"rand-seed": "^3.0.0",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
