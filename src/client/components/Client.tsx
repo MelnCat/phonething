@@ -14,6 +14,7 @@ export const Client = () => {
 	const connection = useRef<Socket | null>(null);
 	const [mirrorX, setMirrorX] = useState(false);
 	const [mirrorY, setMirrorY] = useState(false);
+	const [straight, setStraight] = useState<[number, number, number] | null>(null);
 
 	const [topLeft, setTopLeft] = useState<[number, number, number] | null>(null);
 	const [bottomRight, setBottomRight] = useState<[number, number, number] | null>(null);
@@ -30,6 +31,9 @@ export const Client = () => {
 		if (!loadedRef.current) setIos("requestPermission" in DeviceOrientationEvent);
 	}, 500);
 
+	const clickForwards = () => {
+		setStraight([alpha, beta, gamma]);
+	};
 	const clickTopLeft = () => {
 		setTopLeft([alpha, beta, gamma]);
 	};
@@ -84,15 +88,45 @@ export const Client = () => {
 
 	useEffect(() => {
 		if (!connection.current) return;
-		if (!topLeft || !bottomRight) return;
-		connection.current.emit("data", percentage);
-	}, [percentage, topLeft, bottomRight]);
+		if (!topLeft || !bottomRight || !straight) return;
+		connection.current.emit("data", { pos: percentage, raw: [alpha - straight[0], beta - straight[1], gamma - straight[2]] });
+	}, [percentage, topLeft, bottomRight, alpha, beta, gamma]);
 	const click = (direction: "left" | "right" | "middle", toggled: boolean) => {
 		if (!connection.current) return;
 		connection.current.emit("click", direction, toggled);
 	};
 	return (
 		<div className={styles.app}>
+			<div
+				style={{
+					width: "100%",
+					backgroundImage: `linear-gradient(90deg, red 0% ${((alpha - (straight?.[0] ?? 0)) / 360) * 100}%, transparent ${
+						((alpha - (straight?.[0] ?? 0)) / 360) * 100
+					}% 100%)`,
+				}}
+			>
+				{alpha - (straight?.[0] ?? 0)}
+			</div>
+			<div
+				style={{
+					width: "100%",
+					backgroundImage: `linear-gradient(90deg, yellow 0% ${((beta - (straight?.[1] ?? 0) + 180) / 360) * 100}%, transparent ${
+						((beta - (straight?.[1] ?? 0) + 180) / 360) * 100
+					}% 100%)`,
+				}}
+			>
+				{beta - (straight?.[1] ?? 0)}
+			</div>
+			<div
+				style={{
+					width: "100%",
+					backgroundImage: `linear-gradient(90deg, lime 0% ${((gamma - (straight?.[2] ?? 0) + 90) / 180) * 100}%, transparent ${
+						((gamma - (straight?.[2] ?? 0) + 90) / 180) * 100
+					}% 100%)`,
+				}}
+			>
+				{gamma - (straight?.[2] ?? 0)}
+			</div>
 			{ios && (
 				<div
 					className={styles.ios}
@@ -107,9 +141,10 @@ export const Client = () => {
 					</div>
 				</div>
 			)}
-			{topLeft && bottomRight ? (
+			{topLeft && bottomRight && straight ? (
 				<>
 					<div className={styles.topBar}>
+						<button onClick={clickForwards}>Forwards</button>
 						<button onClick={clickTopLeft}>Set Top Left</button>
 						<button onClick={clickBottomRight}>Set Bottom Right</button>
 						<div className={styles.gap}></div>
@@ -126,6 +161,9 @@ export const Client = () => {
 				</>
 			) : (
 				<div className={styles.setup}>
+					<button onClick={clickForwards} style={straight ? { backgroundColor: `#55ff55` } : {}}>
+						Forwards
+					</button>
 					<button onClick={clickTopLeft} style={topLeft ? { backgroundColor: `#55ff55` } : {}}>
 						Set Top Left
 					</button>

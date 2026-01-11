@@ -14,11 +14,10 @@ ViteExpress.bind(app, server);
 
 const io = new socketIo.Server(server);
 
-const clients: Record<string, [number, number]> = {};
+const clients: Record<string, { pos: [number, number]; raw: [number, number, number] }> = {};
 
 io.on("connection", socket => {
 	console.log(`${socket.id} connected`);
-	clients[socket.id] = [0, 0];
 	socket.on("data", data => {
 		clients[socket.id] = data;
 		io.emit("data", clients);

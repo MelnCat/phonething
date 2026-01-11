@@ -9,7 +9,32 @@
 .canvas {
     width: 100vw;
     aspect-ratio: 16 / 9;
+    background-color: #ffffff;
 }
 .app {
     min-height: 100dvh;
+    background-color: #eeeeee;
+}
+.sticks {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+.stickContainer {
+    height: 5em;
+    width: 5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 60px;
+}
+.stick {
+    height: 5em;
+    width: 1em;
 }
