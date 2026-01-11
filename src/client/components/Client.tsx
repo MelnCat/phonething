@@ -14,7 +14,7 @@ export const Client = () => {
 	const connection = useRef<Socket | null>(null);
 	const [mirrorX, setMirrorX] = useState(false);
 	const [mirrorY, setMirrorY] = useState(false);
-	const [straight, setStraight] = useState<[number, number, number] | null>(null);
+	const [straight, setStraight] = useState<[number, number, number] | null>([0, 0, 0]);
 
 	const [topLeft, setTopLeft] = useState<[number, number, number] | null>(null);
 	const [bottomRight, setBottomRight] = useState<[number, number, number] | null>(null);
@@ -70,7 +70,6 @@ export const Client = () => {
 	const percentage = useMemo(() => {
 		const x = offsetAlpha / totalAlpha;
 		const y = offsetBeta / totalBeta;
-
 		const clamp = (num: number) => Math.min(Math.max(num, 0), 1);
 
 		return [clamp(mirrorX ? x : 1 - x), clamp(mirrorY ? y : 1 - y)];
@@ -141,10 +140,9 @@ export const Client = () => {
 					</div>
 				</div>
 			)}
-			{topLeft && bottomRight && straight ? (
+			{topLeft && bottomRight ? (
 				<>
 					<div className={styles.topBar}>
-						<button onClick={clickForwards}>Forwards</button>
 						<button onClick={clickTopLeft}>Set Top Left</button>
 						<button onClick={clickBottomRight}>Set Bottom Right</button>
 						<div className={styles.gap}></div>
@@ -161,9 +159,6 @@ export const Client = () => {
 				</>
 			) : (
 				<div className={styles.setup}>
-					<button onClick={clickForwards} style={straight ? { backgroundColor: `#55ff55` } : {}}>
-						Forwards
-					</button>
 					<button onClick={clickTopLeft} style={topLeft ? { backgroundColor: `#55ff55` } : {}}>
 						Set Top Left
 					</button>
