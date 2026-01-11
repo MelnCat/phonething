@@ -17,9 +17,6 @@ importers:
       express:
         specifier: ^5.1.0
         version: 5.2.1
-      keysender:
-        specifier: ^2.4.0
-        version: 2.4.0
       matter-js:
         specifier: ^0.20.0
         version: 0.20.0
@@ -997,9 +994,6 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  keysender@2.4.0:
-    resolution: {integrity: sha512-t6umrC8Itaw+fCGjMvwYOSA9mY8KFgNmMM+qinjYLjn2EQeoz+NLuLCL0IsAiBxucDFp9fkYaHuVeh1E/DcH8g==}
-
   lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
 
@@ -1063,10 +1057,6 @@ packages:
   negotiator@1.0.0:
     resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
     engines: {node: '>= 0.6'}
-
-  node-addon-api@8.5.0:
-    resolution: {integrity: sha512-/bRZty2mXUIFY/xU5HLvveNHlswNJej+RnxBjOMkidWfwZzgTbPG1E3K5TOxRLOR+5hX7bSofy8yf1hZevMS8A==}
-    engines: {node: ^18 || ^20 || >= 21}
 
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
@@ -2230,10 +2220,6 @@ snapshots:
 
   json5@2.2.3: {}
 
-  keysender@2.4.0:
-    dependencies:
-      node-addon-api: 8.5.0
-
   lodash.debounce@4.0.8: {}
 
   lru-cache@5.1.1:
@@ -2275,8 +2261,6 @@ snapshots:
   negotiator@0.6.3: {}
 
   negotiator@1.0.0: {}
-
-  node-addon-api@8.5.0: {}
 
   node-releases@2.0.27: {}
 
