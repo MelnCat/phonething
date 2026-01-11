@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 import { useEventListener, useInterval } from "usehooks-ts";
 import { seedRandom } from "../util/random";
-import Matter, { Bodies, Composite, Engine, Render, Runner, World } from "matter-js";
+import Matter, { Bodies, Composite, Constraint, Engine, Query, Render, Runner, World } from "matter-js";
 
 export const Host = () => {
 	// a: 0-360, b: -180-180, g: -90-90
@@ -14,6 +14,7 @@ export const Host = () => {
 	const clickingRef = useRef<Record<string, string | boolean>>({});
 	const clickStartRef = useRef<Record<string, [number, number]>>({});
 	const circleStartRef = useRef<Record<string, [number, number]>>({});
+	const dragRef = useRef<Record<string, Constraint>>({});
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -25,10 +26,46 @@ export const Host = () => {
 		connection.current.on("data", data => {
 			setReceived(data);
 			receivedRef.current = data;
+			for (const [k, v] of Object.entries(dragRef.current)) {
+				const data = receivedRef.current[k];
+				if (!data) continue;
+				v.pointB = { x: 1920 * data.pos[0], y: 1080 * data.pos[1] };
+			}
 		});
 		connection.current.on("click", (id, type, toggled) => {
 			setClicking(x => ({ ...x, [id]: toggled ? type : false }));
 			clickingRef.current[id] = toggled ? type : false;
+			if (type === "middle") {
+				if (!toggled && dragRef.current[id]) {
+					World.remove(engineRef.current!.world, dragRef.current[id]);
+					delete dragRef.current[id];
+				} else if (toggled) {
+					const bodies = Composite.allBodies(engineRef.current!.world);
+					const x = 1920 * (receivedRef.current[id]?.pos[0] ?? 0);
+					const y = 1080 * (receivedRef.current[id]?.pos[1] ?? 0);
+					const clicked = Query.point(bodies, {
+						x,
+						y,
+					});
+
+					if (clicked.length > 0) {
+						const target = clicked[0];
+
+						const drag = Constraint.create({
+							pointA: { x: x - clicked[0].position.x, y: y - clicked[0].position.y },
+							pointB: { x, y },
+							bodyA: target,
+							stiffness: 0.1,
+							length: 0,
+						});
+
+						World.add(engineRef.current!.world, drag);
+
+						dragRef.current[id] = drag;
+					}
+				}
+				return;
+			}
 			if (toggled) (type === "left" ? clickStartRef : circleStartRef).current[id] = receivedRef.current[id].pos;
 			else {
 				const start = (type === "left" ? clickStartRef : circleStartRef).current[id];
@@ -49,15 +86,15 @@ export const Host = () => {
 											.toString(16)
 											.padStart(6, "0")}`,
 									},
-                                    friction: 0.3,
+									friction: 0.3,
 								}
 						  )
 						: Bodies.fromVertices(
 								(1920 * (start[0] + curr[0])) / 2,
 								(1080 * (start[1] + curr[1])) / 2,
 								[...Array(50)].map((_, i) => ({
-									x: Math.cos((i * Math.PI * 2) / 50) * w / 2,
-									y: Math.sin((i * Math.PI * 2) / 50) * h / 2,
+									x: (Math.cos((i * Math.PI * 2) / 50) * w) / 2,
+									y: (Math.sin((i * Math.PI * 2) / 50) * h) / 2,
 								})) as any,
 								{
 									render: {
@@ -65,8 +102,7 @@ export const Host = () => {
 											.toString(16)
 											.padStart(6, "0")}`,
 									},
-                                    friction: 0.3,
-
+									friction: 0.3,
 								}
 						  );
 				Composite.add(engineRef.current!.world, box);
@@ -159,7 +195,7 @@ export const Host = () => {
 						top: `${(Math.min(v[1], received[k].pos[1]) * 100 * 9) / 16}vw`,
 						width: `${Math.abs(received[k].pos[0] - v[0]) * 100}vw`,
 						height: `${(Math.abs(received[k].pos[1] - v[1]) * 100 * 9) / 16}vw`,
-                        borderRadius: "50%",
+						borderRadius: "50%",
 						borderColor: `#${Math.floor(seedRandom(k) * 0x1000000)
 							.toString(16)
 							.padStart(6, "0")}aa`,

@@ -162,6 +162,7 @@ export const Client = () => {
 
 					<div className={styles.mouse}>
 						<button onPointerDown={() => click("left", true)} onPointerUp={() => click("left", false)}></button>
+						<button onPointerDown={() => click("middle", true)} onPointerUp={() => click("middle", false)}></button>
 						<button onPointerDown={() => click("right", true)} onPointerUp={() => click("right", false)}></button>
 					</div>
 				</>
